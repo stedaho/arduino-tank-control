@@ -7,8 +7,8 @@ unsigned int valueTableWhite[MAX_VALUES][2] {
   {(7 * HOUR + 50 * MINUTE) / 10, 0},
   {(8 * HOUR + 10 * MINUTE) / 10, 900},
   {(13 * HOUR + 30 * MINUTE) / 10, 900},
-  {(13 * HOUR + 45 * MINUTE) / 10, 100},
-  {(16 * HOUR + 30 * MINUTE) / 10, 100},
+  {(13 * HOUR + 45 * MINUTE) / 10, 50},
+  {(16 * HOUR + 30 * MINUTE) / 10, 50},
   {(16 * HOUR + 45 * MINUTE) / 10, 900},
   {(21 * HOUR + 50 * MINUTE) / 10, 900},
   {(22 * HOUR + 10 * MINUTE) / 10, 0}
@@ -19,8 +19,8 @@ unsigned int valueTableRed[MAX_VALUES][2] {
   {(7 * HOUR + 30 * MINUTE) / 10, 0},
   {(7 * HOUR + 50 * MINUTE) / 10, 900},
   {(13 * HOUR + 30 * MINUTE) / 10, 900},
-  {(13 * HOUR + 45 * MINUTE) / 10, 100},
-  {(16 * HOUR + 30 * MINUTE) / 10, 100},
+  {(13 * HOUR + 45 * MINUTE) / 10, 50},
+  {(16 * HOUR + 30 * MINUTE) / 10, 50},
   {(16 * HOUR + 45 * MINUTE) / 10, 900},
   {(22 * HOUR + 10 * MINUTE) / 10, 900},
   {(22 * HOUR + 30 * MINUTE) / 10, 0}
@@ -32,11 +32,11 @@ unsigned int valueTableBlue[MAX_VALUES][2] {
   {(8 * HOUR + 10 * MINUTE) / 10, 0},
   {(8 * HOUR + 30 * MINUTE) / 10, 900},
   {(13 * HOUR + 30 * MINUTE) / 10, 900},
-  {(13 * HOUR + 45 * MINUTE) / 10, 100},
-  {(16 * HOUR + 30 * MINUTE) / 10, 100},
+  {(13 * HOUR + 45 * MINUTE) / 10, 50},
+  {(16 * HOUR + 30 * MINUTE) / 10, 50},
   {(16 * HOUR + 45 * MINUTE) / 10, 900},
   {(21 * HOUR + 30 * MINUTE) / 10, 900},
   {(21 * HOUR + 50 * MINUTE) / 10, 0},
-  {(22 * HOUR + 25 * MINUTE) / 10, 0},
-  {(22 * HOUR + 30 * MINUTE) / 10, 100}
+  {(22 * HOUR + 27 * MINUTE) / 10, 0},
+  {(22 * HOUR + 30 * MINUTE) / 10, 50}
 };

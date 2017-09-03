@@ -43,7 +43,7 @@ void setup() {
   /* Eventually set time */
   // rtc.set(0, 0, 22, 6, 25, 8, 17); // RTCLib::set(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year)
   /* Configure button interrupt */
-  attachInterrupt(digitalPinToInterrupt(pinButton1), button1Pressed, RISING);
+  attachInterrupt(digitalPinToInterrupt(pinButton1), button1Pressed, FALLING);
   Serial.println("TankControl started!");
 }
 
@@ -57,12 +57,14 @@ void loop() {
     if (currentMillis - previousMillis < 5) {
       return;
     }
+    /* In simulating mode the time ist increased by 15 seconds per step */
     currentTime += MINUTE / 4;
     currentTime %= (24 * HOUR);
   } else {
     if (currentMillis - previousMillis < 1000) {
       return;
     }
+    /* Get the time from the attached real time clock */
     rtc.refresh();
     currentTime = rtc.hour() * HOUR + rtc.minute() * MINUTE + rtc.second();
   }
@@ -73,32 +75,7 @@ void loop() {
   digitalWrite(LED_BUILTIN, blinkerState);
   blinkerState = !blinkerState;
 
-  /* Get LED values for the given time */
-  float percentageValueWhite = whiteChannel.GetPercentageAtTime(currentTime);
-  float percentageValueRed = redChannel.GetPercentageAtTime(currentTime);
-  float percentageValueBlue = blueChannel.GetPercentageAtTime(currentTime);
-
-  /* Override values if we are in maintenance mode */
-  if (isInMaintenance) {
-    digitalWrite(LED_BUILTIN, true);
-    percentageValueWhite = maintenancePercentageValue;
-    percentageValueRed = maintenancePercentageValue;
-    percentageValueBlue = maintenancePercentageValue;
-    Serial.println("Maintenance mode active");
-  }
-  maintenanceStateChangeHandled = true;
-
-  /* Convert percentage values to raw PWM values */
-  int rawValueWhite = GetRawFromPercentage(GammaCorrect(percentageValueWhite));
-  int rawValueRed = GetRawFromPercentage(GammaCorrect(percentageValueRed));
-  int rawValueBlue = GetRawFromPercentage(GammaCorrect(percentageValueBlue));
-
-  /* Set PWM values to the LED outputs */
-  analogWrite(pinWhite, rawValueWhite);
-  analogWrite(pinRed, rawValueRed);
-  analogWrite(pinBlue, rawValueBlue);
-
-  PrintSerialOutput(currentTime, percentageValueWhite, percentageValueRed, percentageValueBlue);
+  SetLedOutput(currentTime);
 }
 
 
@@ -124,6 +101,37 @@ void serialEvent() {
 }
 
 
+/* Set the LED output for the given time */
+void SetLedOutput(long timestamp) {
+  /* Get LED values for the given time */
+  float percentageValueWhite = whiteChannel.GetPercentageAtTime(timestamp);
+  float percentageValueRed = redChannel.GetPercentageAtTime(timestamp);
+  float percentageValueBlue = blueChannel.GetPercentageAtTime(timestamp);
+
+  /* Override values if we are in maintenance mode */
+  if (isInMaintenance) {
+    digitalWrite(LED_BUILTIN, true);
+    percentageValueWhite = maintenancePercentageValue;
+    percentageValueRed = maintenancePercentageValue;
+    percentageValueBlue = maintenancePercentageValue;
+    Serial.println("Maintenance mode active");
+  }
+  maintenanceStateChangeHandled = true;
+
+  /* Convert percentage values to raw PWM values */
+  int rawValueWhite = GetRawFromPercentage(GammaCorrect(percentageValueWhite));
+  int rawValueRed = GetRawFromPercentage(GammaCorrect(percentageValueRed));
+  int rawValueBlue = GetRawFromPercentage(GammaCorrect(percentageValueBlue));
+
+  /* Set PWM values to the LED outputs */
+  analogWrite(pinWhite, rawValueWhite);
+  analogWrite(pinRed, rawValueRed);
+  analogWrite(pinBlue, rawValueBlue);
+
+  PrintSerialOutput(currentTime, percentageValueWhite, percentageValueRed, percentageValueBlue);  
+}
+
+
 /* Performs a simple gamma correction of the given percentage value */
 float GammaCorrect(float percentageValue) {
   return percentageValue * percentageValue / 100;
@@ -144,7 +152,7 @@ int GetRawFromPercentage(float percentageValue) {
 
 /* Prints the current time and values */
 void PrintSerialOutput(long timer, float vWhite, float vRed, float vBlue) {
-  char output[100];
+  char output[60];
 
   sprintf(output, "[%02d:%02d:%02d] White: %02d.%01d%% Red: %02d.%01d%% Blue: %02d.%01d%%",
           (int)(timer / HOUR),
