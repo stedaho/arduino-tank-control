@@ -1,4 +1,5 @@
 #include "ChannelHandler.h"
+#include "TimeTables.h"
 #include "Wire.h"
 #include "uRTCLib.h"
 
@@ -7,49 +8,6 @@ const int pinWhite = 5;
 const int pinRed = 9;
 const int pinBlue = 6;
 const int pinButton1 = 2;
-
-const long MINUTE = 60;
-const long HOUR = 60 * MINUTE;
-const float maintenancePercentageValue = 90;
-
-/* Time-value pairs for white channel */
-unsigned int valueTableWhite[MAX_VALUES][2] {
-  {(7 * HOUR + 50 * MINUTE) / 10, 0},
-  {(8 * HOUR + 10 * MINUTE) / 10, 900},
-  {(13 * HOUR + 30 * MINUTE) / 10, 900},
-  {(13 * HOUR + 45 * MINUTE) / 10, 100},
-  {(16 * HOUR + 30 * MINUTE) / 10, 100},
-  {(16 * HOUR + 45 * MINUTE) / 10, 900},
-  {(21 * HOUR + 50 * MINUTE) / 10, 900},
-  {(22 * HOUR + 10 * MINUTE) / 10, 0}
-};
-
-/* Time-value pairs for red channel */
-unsigned int valueTableRed[MAX_VALUES][2] {
-  {(7 * HOUR + 30 * MINUTE) / 10, 0},
-  {(7 * HOUR + 50 * MINUTE) / 10, 900},
-  {(13 * HOUR + 30 * MINUTE) / 10, 900},
-  {(13 * HOUR + 45 * MINUTE) / 10, 100},
-  {(16 * HOUR + 30 * MINUTE) / 10, 100},
-  {(16 * HOUR + 45 * MINUTE) / 10, 900},
-  {(22 * HOUR + 10 * MINUTE) / 10, 900},
-  {(22 * HOUR + 30 * MINUTE) / 10, 0}
-};
-
-/* Time-value pairs for blue channel */
-unsigned int valueTableBlue[MAX_VALUES][2] {
-  {(0 * HOUR + 00 * MINUTE) / 10, 0},
-  {(8 * HOUR + 10 * MINUTE) / 10, 0},
-  {(8 * HOUR + 30 * MINUTE) / 10, 900},
-  {(13 * HOUR + 30 * MINUTE) / 10, 900},
-  {(13 * HOUR + 45 * MINUTE) / 10, 100},
-  {(16 * HOUR + 30 * MINUTE) / 10, 100},
-  {(16 * HOUR + 45 * MINUTE) / 10, 900},
-  {(21 * HOUR + 30 * MINUTE) / 10, 900},
-  {(21 * HOUR + 50 * MINUTE) / 10, 0},
-  {(22 * HOUR + 25 * MINUTE) / 10, 0},
-  {(22 * HOUR + 30 * MINUTE) / 10, 100}
-};
 
 /* Instances of channel handlers */
 ChannelHandler whiteChannel(valueTableWhite);
@@ -86,7 +44,7 @@ void setup() {
   // rtc.set(0, 0, 22, 6, 25, 8, 17); // RTCLib::set(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year)
   /* Configure button interrupt */
   attachInterrupt(digitalPinToInterrupt(pinButton1), button1Pressed, RISING);
-  Serial.println("Aquariensteuerung gestartet!");
+  Serial.println("TankControl started!");
 }
 
 
