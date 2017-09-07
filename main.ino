@@ -1,3 +1,5 @@
+/* Copyright 2017 Stefan Daniel Homfeld, www.stedaho.de */
+
 #include "ChannelHandler.h"
 #include "TimeTables.h"
 #include "Wire.h"
@@ -7,7 +9,6 @@
 const int pinWhite = 5;
 const int pinRed = 9;
 const int pinBlue = 6;
-const int pinButton1 = 2;
 
 /* Instances of channel handlers */
 ChannelHandler whiteChannel(valueTableWhite);
@@ -19,8 +20,6 @@ uRTCLib rtc;
 bool blinkerState = true;
 long currentTime = 0;
 volatile bool simulationRunning = false;
-volatile bool isInMaintenance = false;
-volatile bool maintenanceStateChangeHandled = true;
 unsigned long previousMillis = 0;
 
 
@@ -30,7 +29,6 @@ void setup() {
   pinMode(pinWhite, OUTPUT);
   pinMode(pinRed, OUTPUT);
   pinMode(pinBlue, OUTPUT);
-  pinMode(pinButton1, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
   /* Set initial values */
   analogWrite(pinWhite, 0);
@@ -42,8 +40,6 @@ void setup() {
   delay(500);
   /* Eventually set time */
   // rtc.set(0, 0, 22, 6, 25, 8, 17); // RTCLib::set(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year)
-  /* Configure button interrupt */
-  attachInterrupt(digitalPinToInterrupt(pinButton1), button1Pressed, FALLING);
   Serial.println("TankControl started!");
 }
 
@@ -71,20 +67,14 @@ void loop() {
   /* Save the time of the last run */
   previousMillis = currentMillis;
 
+  /* Determine if we are in maintenance mode */
+  bool inMaintenance = false;
+
   /* Blink each second */
   digitalWrite(LED_BUILTIN, blinkerState);
   blinkerState = !blinkerState;
 
-  SetLedOutput(currentTime);
-}
-
-
-/* Handles the interrupt for button 1 pressed */
-void button1Pressed() {
-  if (maintenanceStateChangeHandled) {
-    isInMaintenance = !isInMaintenance;
-    maintenanceStateChangeHandled = false;
-  }
+  SetLedOutput(currentTime, inMaintenance);
 }
 
 
@@ -102,21 +92,20 @@ void serialEvent() {
 
 
 /* Set the LED output for the given time */
-void SetLedOutput(long timestamp) {
+void SetLedOutput(long timestamp, bool inMaintenance) {
   /* Get LED values for the given time */
   float percentageValueWhite = whiteChannel.GetPercentageAtTime(timestamp);
   float percentageValueRed = redChannel.GetPercentageAtTime(timestamp);
   float percentageValueBlue = blueChannel.GetPercentageAtTime(timestamp);
 
   /* Override values if we are in maintenance mode */
-  if (isInMaintenance) {
+  if (inMaintenance) {
     digitalWrite(LED_BUILTIN, true);
     percentageValueWhite = maintenancePercentageValue;
     percentageValueRed = maintenancePercentageValue;
     percentageValueBlue = maintenancePercentageValue;
     Serial.println("Maintenance mode active");
   }
-  maintenanceStateChangeHandled = true;
 
   /* Convert percentage values to raw PWM values */
   int rawValueWhite = GetRawFromPercentage(GammaCorrect(percentageValueWhite));

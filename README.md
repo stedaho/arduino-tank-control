@@ -7,7 +7,7 @@ Software zur Steuerung eines Aquariums mit folgenden Komponenten:
 * **Arduino Nano** als Herzstück der Steuerung
 * **RTC DS1307** als Echzeituhr für den Zeitplan, angebunden per *I²C*
 * **LED** zur Statusanzeige an Pin *LED_BUILTIN*
-* **Schalter** zur Aktivierung des Wartungsmodus an Pin xxx (derzeit noch Taster an Pin 2)
+* **Schalter** zur Aktivierung des Wartungsmodus an Pin xxx
 * **Giesemann PULZAR LED HO TROPIC** zur Beleuchtung des Aquariums, drei getrennt per PWM regelbare Farbkanäle:
     * *Weißer Kanal* an Pin 5
     * *Rötlicher Kanal* an Pin 9
@@ -29,7 +29,7 @@ Software for controlling a fish tank with the following components:
 * **Arduino Nano** as controller
 * **RTC DS1307** as real time clock, connected via *I²C*
 * **LED** for displaying the state at pin *LED_BUILTIN*
-* **Switch** to activate the maintenance mode at pin xxx (currently as button at pin 2)
+* **Switch** to activate the maintenance mode at pin xxx
 * **Giesemann PULZAR LED HO TROPIC** for lighting the tank, three color channels to be controlled separately via PWM:
     * *White channel* at pin 5
     * *Red channel* at pin 9

@@ -1,3 +1,5 @@
+/* Copyright 2017 Stefan Daniel Homfeld, www.stedaho.de */
+
 /* Maximum number of switching times per day */
 const int MAX_VALUES = 15;
 

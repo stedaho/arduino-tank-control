@@ -1,3 +1,5 @@
+/* Copyright 2017 Stefan Daniel Homfeld, www.stedaho.de */
+
 const long MINUTE = 60;
 const long HOUR = 60 * MINUTE;
 const float maintenancePercentageValue = 90;
@@ -37,6 +39,6 @@ unsigned int valueTableBlue[MAX_VALUES][2] {
   {(16 * HOUR + 45 * MINUTE) / 10, 900},
   {(21 * HOUR + 30 * MINUTE) / 10, 900},
   {(21 * HOUR + 50 * MINUTE) / 10, 0},
-  {(22 * HOUR + 27 * MINUTE) / 10, 0},
-  {(22 * HOUR + 30 * MINUTE) / 10, 50}
+  {(22 * HOUR + 29 * MINUTE) / 10, 0},
+  {(22 * HOUR + 30 * MINUTE) / 10, 30}
 };
