@@ -9,6 +9,7 @@
 const int pinWhite = 5;
 const int pinRed = 9;
 const int pinBlue = 6;
+const int pinButton = 7;
 
 /* Instances of channel handlers */
 ChannelHandler whiteChannel(valueTableWhite);
@@ -29,6 +30,7 @@ void setup() {
   pinMode(pinWhite, OUTPUT);
   pinMode(pinRed, OUTPUT);
   pinMode(pinBlue, OUTPUT);
+  pinMode(pinButton, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
   /* Set initial values */
   analogWrite(pinWhite, 0);
@@ -39,7 +41,7 @@ void setup() {
   Serial.begin(57600);
   delay(500);
   /* Eventually set time */
-  // rtc.set(0, 0, 22, 6, 25, 8, 17); // RTCLib::set(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year)
+  // rtc.set(0, 0, 22, 6, 25, 8, 17); // RTCLib::set(second, minute, hour, dayOfWeek, dayOfMonth, month, year)
   Serial.println("TankControl started!");
 }
 
@@ -62,17 +64,27 @@ void loop() {
     }
     /* Get the time from the attached real time clock */
     rtc.refresh();
+    /* In case we did not get a valid time from the RTC we return and try again in the next cycle */
+    if (rtc.year() == 0) {
+      return;
+    }
     currentTime = rtc.hour() * HOUR + rtc.minute() * MINUTE + rtc.second();
   }
   /* Save the time of the last run */
   previousMillis = currentMillis;
 
   /* Determine if we are in maintenance mode */
-  bool inMaintenance = false;
+  bool inMaintenance = (digitalRead(pinButton) == HIGH);
 
-  /* Blink each second */
+  /* Blink status LED */
   digitalWrite(LED_BUILTIN, blinkerState);
   blinkerState = !blinkerState;
+
+  /* Override LED blinking and print out debug message if we are in maintenance mode */
+  if (inMaintenance) {
+    digitalWrite(LED_BUILTIN, true);
+    Serial.println("Maintenance mode active");
+  }
 
   SetLedOutput(currentTime, inMaintenance);
 }
@@ -82,9 +94,9 @@ void loop() {
 void serialEvent() {
   while (Serial.available()) {
     char inChar = (char)Serial.read();
-    if (inChar == 's') {
+    if (inChar == 's') { /* 's' activates simulation mode */
       simulationRunning = true;
-    } else if (inChar == 'r') {
+    } else if (inChar == 'r') { /* 'r' enables real time oparation (default) */
       simulationRunning = false;
     }
   }
@@ -100,11 +112,9 @@ void SetLedOutput(long timestamp, bool inMaintenance) {
 
   /* Override values if we are in maintenance mode */
   if (inMaintenance) {
-    digitalWrite(LED_BUILTIN, true);
     percentageValueWhite = maintenancePercentageValue;
     percentageValueRed = maintenancePercentageValue;
     percentageValueBlue = maintenancePercentageValue;
-    Serial.println("Maintenance mode active");
   }
 
   /* Convert percentage values to raw PWM values */
@@ -117,7 +127,7 @@ void SetLedOutput(long timestamp, bool inMaintenance) {
   analogWrite(pinRed, rawValueRed);
   analogWrite(pinBlue, rawValueBlue);
 
-  PrintSerialOutput(currentTime, percentageValueWhite, percentageValueRed, percentageValueBlue);  
+  PrintSerialOutput(currentTime, percentageValueWhite, percentageValueRed, percentageValueBlue);
 }
 
 
@@ -131,10 +141,12 @@ float GammaCorrect(float percentageValue) {
 /* Converts the percentage value into a raw PWM value */
 int GetRawFromPercentage(float percentageValue) {
   int rawValue = percentageValue * 2.55 + 0.5;
-  /* Set the raw value to 1 if it would be to small to have a guaranteed output if the percentage value is greater zero */
+
+  /* Ensure that we have a guaranteed output if the percentage value is greater zero */
   if (percentageValue > 0 && rawValue == 0) {
     rawValue = 1;
   }
+
   return rawValue;
 }
 
